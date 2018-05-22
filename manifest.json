@@ -1,20 +1,23 @@
 {
   "name": "listen clicks",
   "description": "Utility for capturing clicks",
-  "version": "0.3",
-  "permissions":[
-    "tabs","activeTab",
-  "https://*/*",
-  "http://*/*"
-],
-"content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+  "version": "1.3",
+  "permissions": [
+    "tabs",
+    "activeTab",
+    "https://*/*",
+    "http://*/*"
+  ],
+  "content_security_policy": "script-src 'self' https://ajax.googleapis.com/ajax/libs/angularjs/1.6.10/angular.min.js; object-src 'self'",
   "background": {
     "persistent": false,
-    "scripts": ["background.js"]
-},
+    "scripts": [
+      "background.js"
+    ]
+  },
   "browser_action": {
-    "default_title": "Krishna Inspector",
-  "default_popup": "popup.html"
-},
+    "default_title": "Krishna Inspector 1.3",
+    "default_popup": "popup.html"
+  },
   "manifest_version": 2
 }
