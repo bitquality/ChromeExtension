@@ -1,0 +1,20 @@
+{
+  "name": "listen clicks",
+  "description": "Utility for capturing clicks",
+  "version": "0.3",
+  "permissions":[
+    "tabs","activeTab",
+  "https://*/*",
+  "http://*/*"
+],
+"content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+  "background": {
+    "persistent": false,
+    "scripts": ["background.js"]
+},
+  "browser_action": {
+    "default_title": "Krishna Inspector",
+  "default_popup": "popup.html"
+},
+  "manifest_version": 2
+}
