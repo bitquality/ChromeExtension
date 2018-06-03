@@ -2,76 +2,78 @@ var activeTabId = undefined;
 
 console.log("bg loaded 7");
 
+var domPort;
 
 chrome.tabs.onUpdated.addListener(function (tabId, changeInfo, tab) {
 
-    console.log("bg: .onupdated.onClicked. tab id", activeTabId,tab);
-    // //reload content script on page refresh
-    // if (activeTabId !== undefined && activeTabId === tabId) {
-    //     chrome.tabs.executeScript(activeTabId, { file: "csdom.js" }, function (response) {
-    //         console.log("bg :onUpdated executescript after Response from cs ", response);
+    console.log("bg: .onupdated.onClicked. tab id ", activeTabId, tab);
 
-    //         // Enable the page-action for the requesting tab
-    //         console.log("bg: onUpdated now sending message listen to cs");
-    //         chrome.tabs.sendMessage(activeTabId,
-    //             { 'from': 'popup', 'subject': 'listen' },
-    //             function (response) {
-    //                 console.log('bg onUpdated sendmessage listen resp from cs ' + response);
-    //             }
-    //         );
-    //     });
-    // }
-   
-    activeTabId = tab.id;
-   
 });
+
+
+chrome.runtime.onConnect.addListener(function (port) {
+    console.log("port name  connected   " + port.name);
+    //i only care about content script csdomPort
+    if (port.name == 'csdomPort') {
+        console.log("i will save port object " + port.name);
+        domPort = port;
+    }
+});
+
 
 chrome.browserAction.onClicked.addListener(function (tab) { //Fired when User Clicks ICON
-    console.log("bg: .browserAction.onClicked.", tab, activeTabId);
-    // chrome.windows.create({ url: chrome.extension.getURL("popup.html"), type: "popup" });
-   
-    if (activeTabId !== undefined ) {
-        chrome.tabs.executeScript(activeTabId, { file: "csdom.js" }, function (response) {
-            console.log("bg :onUpdated executescript after Response from cs ", response);
 
-            // Enable the page-action for the requesting tab
-            console.log("bg: onUpdated now sending message listen to cs");
-            chrome.tabs.sendMessage(activeTabId,
-                { 'from': 'popup', 'subject': 'listen' },
-                function (response) {
-                    console.log('bg onUpdated sendmessage listen resp from cs ' + response);
-                }
-            );
-        });
-    }
 
-    activeTabId = tab.id;
+    activeTabId = tab.id;//only the browser tab
+    console.log("bg: .browserAction.onClicked.save tabid ", tab, activeTabId);
+
+
+    chrome.tabs.executeScript(activeTabId, { file: "csdom.js" }, function (response) {
+        console.log("bg :executescript csdom  Response from cs ", response);
+        chrome.windows.create({ url: chrome.extension.getURL("popup.html"), type: "popup" });
+    });
+
+
 
 });
 
 
-chrome.runtime.onMessage.addListener(function (msg, sender) {
-    console.log("bg onMessage received  ", activeTabId, msg);
+chrome.runtime.onMessage.addListener(function (msg, sender, sendResponse) {
+    console.log("bg onMessage received from popup? ", activeTabId, msg);
 
-    alert("bg onMessage received  ", activeTabId, msg);
+    //alert("bg onMessage received from popup? ", activeTabId, msg);
 
     // First, validate the message's structure
     if (msg.subject === 'listen') {
-        chrome.tabs.executeScript(activeTabId, { file: "csdom.js" }, function (response) {
-            console.log("bg :executescript after Response from cs ", response,activeTabId);
 
-            // Enable the page-action for the requesting tab
-            console.log("bg: now sending message listen to cs");
-            chrome.tabs.sendMessage(activeTabId,
-                { 'from': 'popup', 'subject': 'listen' },
-                function (response) {
-                    console.log('bg sendmessage listen resp from cs ' + response);
-                }
-            );
-        });
+        // Enable the page-action for the requesting tab
+        console.log("bg: now sending message  to cs to start listening");
+        console.log("bg active port ", domPort);
+        if (chrome.runtime.lastError)
+            alert('bg ERROR1: ' + chrome.runtime.lastError.message);
+        else
+            console.log("bg: no error");
+        domPort.postMessage({ 'from': 'popup', 'subject': 'listen' });
+        if (chrome.runtime.lastError)
+            alert('bg ERROR2: ' + chrome.runtime.lastError.message);
+        else
+            console.log("bg: no error");
+    }
+    else  if (msg.subject === 'stoplisten') {
+        domPort.postMessage({ 'from': 'popup', 'subject': 'stoplisten' });
+
+    }
+    else if (msg.subject === 'load') {
+
+        // Enable the page-action for the requesting tab
+        console.log("bg: now sending message  to cs to start listening");
+        console.log("bg active port ", domPort);
+        domPort.postMessage({ 'from': 'popup', 'subject': 'listen' });
+
     }
 
-
+    //sendResponse({ 'from': 'bg', 'subject': 'gotcha' });
+    return true;
 });
 
 
