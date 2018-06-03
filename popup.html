@@ -1,19 +1,23 @@
-
-
 <!DOCTYPE html>
-<html lang="en" ng-app ng-csp>
+
+<html lang="en">
 <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.10/angular.min.js"></script>
 <script src="popup.js"></script>
+
 <body>
 
-<div ng-app="">
- 
-<p>Input something in the input box:</p>
-<p>Name : <input type="text" ng-model="name" placeholder="Enter name here"></p>
-<h1>Hello {{name}}</h1>
-<button id="clickMe">Click me</button>
+    <div ng-app="">
 
-</div>
+        <p>Input something in the input box:</p>
+        <p>Name :
+            <input type="text" ng-model="name" placeholder="Enter name here">
+        </p>
+        <h1>Hello {{name}}</h1>
+        <button id="clickMe">listen</button>
+
+        <button id="stopMe">stop</button>
+    </div>
 
 </body>
+
 </html>
